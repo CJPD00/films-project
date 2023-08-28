@@ -1,4 +1,4 @@
-import { useState} from "react"
+import { useState, useEffect } from "react"
 
 function App() {
 
@@ -8,21 +8,46 @@ function App() {
   const urlBase = 'https://api.themoviedb.org/3/search/movie?'
   const API_KEY = '6c49ccc78405acffed04209418acc126'
 
-  const getData = async () => {
 
-       try {
+  const getMainData = async () => {
 
-        const response=await fetch(`${urlBase}query=${pelicula}&api_key=${API_KEY}`)
-        const data =await response.json()
-        setdata(data.results)
-        
-       } catch (error) {
+    try {
 
-        console.error('ocurrio este error',error)
-        
-       }
+      const response = await fetch(`https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}`)
+      const data = await response.json()
+      setdata(data.results)
+
+    } catch (error) {
+
+      console.error(error)
+
+    }
 
   }
+
+  const getData = async () => {
+
+    try {
+
+      const response = await fetch(`${urlBase}query=${pelicula}&api_key=${API_KEY}`)
+      const data = await response.json()
+      setdata(data.results)
+
+    } catch (error) {
+
+      console.error('ocurrio este error', error)
+
+    }
+
+  }
+
+  useEffect(() => {
+
+    if (pelicula === '') {
+      getMainData()
+    }
+
+  }, [pelicula])
 
   const handleChange = (e) => {
 
@@ -30,18 +55,19 @@ function App() {
 
   }
 
-  const handleSubmit=(e)=>{
+  const handleSubmit = (e) => {
 
-      e.preventDefault()
-      getData()
-      setpelicula('')
+    e.preventDefault()
+    getData()
+
+    if (pelicula === '') getMainData()
 
   }
 
   return (
     <div className="container">
 
-      <h1>Films Search</h1>
+      <h1 className="head"><div className="shadow"><i className="fa-solid fa-film fa-lg"></i>Movies</div></h1>
 
       <form onSubmit={handleSubmit}>
         <input type="text"
@@ -52,17 +78,19 @@ function App() {
       </form>
 
       <div className="movie-list">
-        {data.map(pel=>{
-          return(
+
+        {data.map(pel => {
+          return (
 
             <div key={pel.id} className='movie-card'>
-                 <img src={`https://image.tmdb.org/t/p/w500/${pel.poster_path}`} alt={`${pel.title}`} />
-                 <h1>{pel.title}</h1>
-                 <p>{pel.overview}</p>
+              <img src={`https://image.tmdb.org/t/p/w500/${pel.poster_path}`} alt={`${pel.title}`} />
+              <h1>{pel.title}</h1>
+              <p>{pel.overview}</p>
             </div>
 
           )
         })}
+
       </div>
 
     </div>
